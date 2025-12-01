@@ -27,9 +27,10 @@ sudo apt install -y curl wget unzip gnupg apt-transport-https software-propertie
 # 1. Install Grafana
 ##########################################################
 echo "=== Installing Grafana ==="
-wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-echo "deb https://packages.grafana.com/oss/deb stable main" \
-  | sudo tee /etc/apt/sources.list.d/grafana.list
+sudo mkdir -p /etc/apt/keyrings/
+wget -q -O- https://packages.grafana.com/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/grafana.gpg
+
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list > /dev/null
 
 sudo apt update -y
 sudo apt install -y grafana
@@ -221,9 +222,9 @@ scrape_configs:
   - job_name: journald
     journal:
       path: /var/log/journal
-    labels:
-      job: journald
-      host: logvm
+      labels:
+        job: journald
+        host: logvm
 EOF
 
 sudo tee /etc/systemd/system/promtail.service >/dev/null <<EOF
